@@ -1,5 +1,5 @@
 {
-  "name": "servicenow_build_tool",
+  "name": "servicenowify",
   "version": "0.0.1",
   "description": "A tool for compiling TypeScript projects to ServiceNow Script Includes",
   "main": "main.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/atcwells/servicenow_build_tool.git"
+    "url": "git+https://github.com/atcwells/servicenowify.git"
   },
   "keywords": [
     "ServiceNow",
@@ -17,9 +17,9 @@
   "author": "Alex Wells",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/atcwells/servicenow_build_tool/issues"
+    "url": "https://github.com/atcwells/servicenowify/issues"
   },
-  "homepage": "https://github.com/atcwells/servicenow_build_tool#readme",
+  "homepage": "https://github.com/atcwells/servicenowify/#readme",
   "dependencies": {
     "browserify": "^13.0.0",
     "filewalker": "^0.1.2",

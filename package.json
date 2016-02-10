@@ -24,7 +24,7 @@
     "browserify": "^13.0.0",
     "filewalker": "^0.1.2",
     "rimraf": "^2.5.1",
-    "typescript": "^1.7.5",
+    "typescript.api": "^0.7.7",
     "uglify": "^0.1.5"
   },
   "bin": {

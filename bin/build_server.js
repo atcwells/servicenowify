@@ -1,54 +1,58 @@
 #!/usr/bin/env node
 var fixBlockScoping = require('../lib/fixBlockScoping.js')('./dist/deploy.js');
 
-var files = fs.readFile('./app', function(files) {
-    console.log(files);
-})
+var filewalker = require('filewalker');
+
+filewalker('./src')
+    .on('done', function () {
+        console.log('%d dirs, %d files, %d bytes', this.dirs, this.files, this.bytes);
+    })
+    .walk();
 
 // Build
 /*
-var tsapi = require("typescript.api");
-tsapi.compile([''], function(compiled) {
-    for(var n in compiled) {
-        console.log(compiled[n].content);
-    }
-});
-*/
+ var tsapi = require("typescript.api");
+ tsapi.compile([''], function(compiled) {
+ for(var n in compiled) {
+ console.log(compiled[n].content);
+ }
+ });
+ */
 
 // Package
 /*
-var browserify = require('browserify')();
-browserify.add('./src/lib/main.js');
-browserify.bundle().pipe(function (error, code) {
-    console.log(code);
-});
-*/
+ var browserify = require('browserify')();
+ browserify.add('./src/lib/main.js');
+ browserify.bundle().pipe(function (error, code) {
+ console.log(code);
+ });
+ */
 
 // Uglify
 /*
-var UglifyJS = require("uglify-js");
-var result = UglifyJS.minify("var b = function () {};", {fromString: true});
-*/
+ var UglifyJS = require("uglify-js");
+ var result = UglifyJS.minify("var b = function () {};", {fromString: true});
+ */
 
 // Fix Block Scoping - ServiceNow has a poor implementation of JavaScript, causing a single error in the Uglified code. We have to fix this by scoping a variable.
 
 // Clean
 /*
-var rimraf = require('rimraf');
-rimraf('./src/lib/*.js', function (err) {
-    if (err) {
+ var rimraf = require('rimraf');
+ rimraf('./src/lib/*.js', function (err) {
+ if (err) {
 
-    } else {
-        rimraf('./dist/deployTemp.js', function (err) {
-            if (err) {
+ } else {
+ rimraf('./dist/deployTemp.js', function (err) {
+ if (err) {
 
-            } else {
+ } else {
 
-            }
-        });
-    }
-});
-*/
+ }
+ });
+ }
+ });
+ */
 
 /*
  "build": "npm run compile -s && npm run package -s && npm run uglify -s  && npm run clean -s",

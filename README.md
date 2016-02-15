@@ -42,6 +42,7 @@ You as a developer will write TypeScript files, all within the 'server' director
 ###Options:
 To configure the buildtool, a section should be added to your package.json like this:
 
+```json
    "servicenowify": {
      "name": "OPSD_DBScan",
      "sourcedir": "/server",
@@ -55,6 +56,7 @@ To configure the buildtool, a section should be added to your package.json like 
        "clean"
      ]
    }
+```
 
 ###Questions:
 

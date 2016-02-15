@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 var filewalker = require('filewalker');
-var browserify = require('browserify')({'standalone': 'SNC_DBScan'});
+var browserify = require('browserify')({'standalone': process.env.npm_package_umd_name || process.env.npm_package_name});
 var rimraf = require('rimraf')
 var UglifyJS = require("uglify-js");
 var path = require('path');

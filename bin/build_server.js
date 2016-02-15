@@ -19,7 +19,7 @@ var mainFile = 'main.js';
 filewalker(sourceDirectory)
     .on('file', function (filePath, s) {
         if (path.extname(filePath) === '.ts') {
-            typescriptFiles.push(filePath);
+            typescriptFiles.push(filePath)
         }
     })
     .on('done', function () {
@@ -32,29 +32,28 @@ filewalker(sourceDirectory)
                                 if (err)
                                     console.error(err)
                                 else {
-                                    fs.writeFileSync(distDirectory + '/' + distFile, uglifiedCode, 'UTF8');
+                                    fs.writeFileSync(distDirectory + '/' + distFile, uglifiedCode, 'UTF8')
 
                                     for (var key in compiledFiles) {
-                                        var filesToClean = compiledFiles.length;
+                                        var filesToClean = compiledFiles.length
                                         servicenowify.clean(sourceDirectory + '/' + compiledFiles[key].substring(0, compiledFiles[key].length - 2) + 'js', function (err) {
-                                            filesToClean--;
+                                            filesToClean--
                                             if (!filesToClean) {
                                                 console.log('Build complete!')
                                             }
-                                        });
+                                        })
                                     }
                                 }
-                            });
-
-                        });
-                    });
+                            })
+                        })
+                    })
                 } else {
                     console.log('Unable to browserify source directory')
                 }
-            });
-        });
+            })
+        })
     })
-    .walk();
+    .walk()
 
 // Build
 

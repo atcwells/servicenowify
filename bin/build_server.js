@@ -1,64 +1,116 @@
 #!/usr/bin/env node
-var fixBlockScoping = require('../lib/fixBlockScoping.js')('./dist/deploy.js');
 
 var filewalker = require('filewalker');
+var browserify = require('browserify')();
+var rimraf = require('rimraf')
+var UglifyJS = require("uglify-js");
+var path = require('path');
+var mkdirp = require('mkdirp');
+var exec = require('child_process').exec;
+var fs = require('fs');
 
-filewalker('./src')
+var typescriptFiles = [];
+var compiledFiles = [];
+var sourceDirectory = './server';
+var distDirectory = './dist';
+var distFile = 'deploy.js';
+var mainFile = 'main.js';
+
+filewalker(sourceDirectory)
+    .on('file', function (filePath, s) {
+        if (path.extname(filePath) === '.ts') {
+            typescriptFiles.push(filePath);
+        }
+    })
     .on('done', function () {
-        console.log('%d dirs, %d files, %d bytes', this.dirs, this.files, this.bytes);
+        servicenowify.compileAll(typescriptFiles, function (err) {
+            servicenowify.browserifyAll(sourceDirectory + '/' + mainFile, function (err, code) {
+                if (!err) {
+                    servicenowify.fixBlockScoping(code, function (err, fixedCode) {
+                        servicenowify.uglifyAll(fixedCode, function (err, uglifiedCode) {
+                            mkdirp(distDirectory + '/', function (err) {
+                                if (err)
+                                    console.error(err)
+                                else {
+                                    fs.writeFileSync(distDirectory + '/' + distFile, uglifiedCode, 'UTF8');
+
+                                    for (var key in compiledFiles) {
+                                        var filesToClean = compiledFiles.length;
+                                        servicenowify.clean(sourceDirectory + '/' + compiledFiles[key].substring(0, compiledFiles[key].length - 2) + 'js', function (err) {
+                                            filesToClean--;
+                                            if (!filesToClean) {
+                                                console.log('Build complete!')
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+
+                        });
+                    });
+                } else {
+                    console.log('Unable to browserify source directory')
+                }
+            });
+        });
     })
     .walk();
 
 // Build
-/*
- var tsapi = require("typescript.api");
- tsapi.compile([''], function(compiled) {
- for(var n in compiled) {
- console.log(compiled[n].content);
- }
- });
- */
 
-// Package
-/*
- var browserify = require('browserify')();
- browserify.add('./src/lib/main.js');
- browserify.bundle().pipe(function (error, code) {
- console.log(code);
- });
- */
+servicenowify = {
+    /*
+     Takes an Array of files and attempts to compile them. Requires tsc compiler to be installed at OS level. Fires callback on completion.
+     */
+    compileAll: function (files, callback) {
+        for (var key in files) {
+            var filesToCompile = files.length;
+            var compilationError = false;
+            var command = "tsc " + sourceDirectory + '/' + files[key] + " --module commonjs";
+            (function (filename) {
+                exec(command, function (error) {
+                    if (error !== null) {
+                        console.error('Unable to compile file: ' + filename + ', err: ' + error);
+                        compilationError = true;
+                    } else {
+                        compiledFiles.push(filename);
+                    }
 
-// Uglify
-/*
- var UglifyJS = require("uglify-js");
- var result = UglifyJS.minify("var b = function () {};", {fromString: true});
- */
-
-// Fix Block Scoping - ServiceNow has a poor implementation of JavaScript, causing a single error in the Uglified code. We have to fix this by scoping a variable.
-
-// Clean
-/*
- var rimraf = require('rimraf');
- rimraf('./src/lib/*.js', function (err) {
- if (err) {
-
- } else {
- rimraf('./dist/deployTemp.js', function (err) {
- if (err) {
-
- } else {
-
- }
- });
- }
- });
- */
-
-/*
- "build": "npm run compile -s && npm run package -s && npm run uglify -s  && npm run clean -s",
- "compile": "tsc src/lib/*.ts --module commonjs",
- "package": "browserify --s Ops_DBScan src/lib/main.js > dist/deployTemp.js",
- "uglify": "uglifyjs dist/deployTemp.js > dist/deploy.js",
- "fix_block_scoping": "node ./fixBlockScoping.js",
- "clean": "rm -r src/lib/*.js && rm dist/deployTemp.js"
- */
+                    filesToCompile--;
+                    if (!filesToCompile) {
+                        callback(compilationError);
+                    }
+                });
+            })(files[key])
+        }
+    },
+    /*
+     Takes an file and browserify's it, standard stuff from that package. Produces a single file including all dependencies at the target location.
+     */
+    browserifyAll: function (file, callback) {
+        browserify.add(file);
+        browserify.bundle(function (error, code) {
+            callback(error, code);
+        });
+    },
+    /*
+     Takes an file and uglify's it, standard stuff from that package. Produces a single file at the target location.
+     */
+    uglifyAll: function (fileContents, callback) {
+        var result = UglifyJS.minify(fileContents, {fromString: true});
+        callback(null, result.code);
+    },
+    /*
+     Fix Block Scoping - ServiceNow has a poor implementation of JavaScript, causing a single error in the Uglified code. We have to fix this by scoping a variable.
+     */
+    fixBlockScoping: function (code, callback) {
+        var fixedCode = '(e = function' + code.toString().substring(11);
+        callback(null, fixedCode);
+    },
+    /*
+     Generic cleaning function, uses rimraf to take care of things
+     */
+    clean: function (file, callback) {
+        rimraf(file, callback);
+    }
+};

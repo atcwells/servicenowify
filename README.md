@@ -42,19 +42,19 @@ You as a developer will write TypeScript files, all within the 'server' director
 ###Options:
 To configure the buildtool, a section should be added to your package.json like this:
 
-  "servicenowify": {
-    "name": "OPSD_DBScan",
-    "sourcedir": "/server",
-    "distdir": "/dist",
-    "distfile": "deploy.js",
-    "jobs": [
-      "compile",
-      "browserify",
-      "fix_block_scoping",
-      "uglify",
-      "clean"
-    ]
-  }
+   "servicenowify": {
+     "name": "OPSD_DBScan",
+     "sourcedir": "/server",
+     "distdir": "/dist",
+     "distfile": "deploy.js",
+     "jobs": [
+       "compile",
+       "browserify",
+       "fix_block_scoping",
+       "uglify",
+       "clean"
+     ]
+   }
 
 ###Questions:
 

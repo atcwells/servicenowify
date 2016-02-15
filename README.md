@@ -25,7 +25,7 @@ Finally we clean up all the compiled '.js' files.
 
 1. Run the following at the command prompt:
 
-  `npm -save servicenowify`
+  `npm install -save servicenowify`
 
 1. Add the following to the 'scripts' section of your package.json:
 

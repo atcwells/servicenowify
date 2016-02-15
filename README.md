@@ -4,26 +4,21 @@
 
 This tool will take a bunch of TypeScript files, compile them, mash all javascript into a single string and uglify it. The resulting code can be imported into a ServiceNow Script Include for use elsewhere in the system. All methods exposed by the main entry point of your TypeScript application will be exposed to the ServiceNow execution context.
 
-Jobs:
+###Jobs:
 
 1. Compile
-
 The tool starts by running tsc (TypeScript compiler) against all available '.ts' files.
 
 1. Browserify
-
 The tool will take the single file specified in the package.json as 'main', and produce a public function for each method provided. This becomes the available API within ServiceNow
 
 1. Fix block scoping issue
-
 ServiceNow has a specific issue where it doesn't hoist a function properly, so we simply have to replace 'function e(...' with 'e = function(...' in the code.
 
 1. Uglify
-
 We run this job just to compress everything into the smallest space. The result will be placed in the './dist/deploy.js' file.
 
 1. Clean
-
 Finally we clean up all the compiled '.js' files.
 
 ###Setup:

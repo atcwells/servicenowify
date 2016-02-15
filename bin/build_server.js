@@ -1,7 +1,21 @@
 #!/usr/bin/env node
+var pkg = require('../../../package.json');
+
+if (!pkg.servicenowify) {
+    console.log('ServiceNowify options not present, all defaults will be in place');
+    var sourceDirectory = './src';
+    var distDirectory = './dist';
+    var distFile = 'deploy.js';
+    var apiName = pkg.name;
+} else {
+    var sourceDirectory = '.' + pkg.servicenowify.sourcedir;
+    var distDirectory = '.' + pkg.servicenowify.distdir;
+    var distFile = pkg.servicenowify.distfile;
+    var apiName = pkg.servicenowify.name;
+}
 
 var filewalker = require('filewalker');
-var browserify = require('browserify')({'standalone': process.env.npm_package_umd_name || process.env.npm_package_name});
+var browserify = require('browserify')({'standalone': apiName});
 var rimraf = require('rimraf')
 var UglifyJS = require("uglify-js");
 var path = require('path');
@@ -11,10 +25,10 @@ var fs = require('fs');
 
 var typescriptFiles = [];
 var compiledFiles = [];
-var sourceDirectory = './server';
-var distDirectory = './dist';
-var distFile = 'deploy.js';
-var mainFile = '.' + process.env.npm_package_main;
+
+console.log('Taking source files from: ' + sourceDirectory)
+console.log('Targeting dist file at: ' + distDirectory + '/' + distFile)
+var mainFile = '.' + pkg.main;
 
 filewalker(sourceDirectory)
     .on('file', function (filePath, s) {
@@ -41,7 +55,7 @@ filewalker(sourceDirectory)
                                     } else {
                                         mkdirp(distDirectory + '/', function (err) {
                                             if (err) {
-                                                console.error(err)
+                                                console.error('Unable to Create dist file: ' + err)
                                             } else {
                                                 fs.writeFileSync(distDirectory + '/' + distFile, uglifiedCode, 'UTF8')
                                                 for (var key in compiledFiles) {

@@ -9,16 +9,16 @@ This tool will take a bunch of TypeScript files, compile them, mash all javascri
 1. **Compile**
 The tool starts by running tsc (TypeScript compiler) against all available '.ts' files.
 
-1. **Browserify**
+2. **Browserify**
 The tool will take the single file specified in the package.json as 'main', and produce a public function for each method provided. This becomes the available API within ServiceNow
 
-1. **Fix block scoping issue**
+3. **Fix block scoping issue**
 ServiceNow has a specific issue where it doesn't hoist a function properly, so we simply have to replace 'function e(...' with 'e = function(...' in the code. _Not your code, it's the functions Browserify creates that cause the problem. Your code is not modified._
 
-1. **Uglify**
+4. **Uglify**
 We run this job just to compress everything into the smallest space. The result will be placed in the './dist/deploy.js' file.
 
-1. **Clean**
+5. **Clean**
 Finally we clean up all the compiled '.js' files.
 
 ###Setup:
@@ -27,11 +27,11 @@ Finally we clean up all the compiled '.js' files.
 
   `npm install -save servicenowify`
 
-1. Add the following to the 'scripts' section of your package.json:
+2. Add the following to the 'scripts' section of your package.json:
 
   `"build": "build_servicenow_server"`
 
-1. Run the following at the command prompt:
+3. Run the following at the command prompt:
 
   `npm run build`
 
@@ -40,9 +40,21 @@ Finally we clean up all the compiled '.js' files.
 You as a developer will write TypeScript files, all within the 'server' directory (currently). You are able to specify the resulting name of the API added to global namespace with the package.json option 'umd_name'. you will build the project, and import the resulting code into a Script Include. From a different script, it is now possible to call your code using the namespace provided by the umd_name.
 
 ###Options:
+To configure the buildtool, a section should be added to your package.json like this:
 
-package.json
-umd_name: The name that should be callable from ServiceNow scripting locations.
+  "servicenowify": {
+    "name": "OPSD_DBScan",
+    "sourcedir": "/server",
+    "distdir": "/dist",
+    "distfile": "deploy.js",
+    "jobs": [
+      "compile",
+      "browserify",
+      "fix_block_scoping",
+      "uglify",
+      "clean"
+    ]
+  }
 
 ###Questions:
 

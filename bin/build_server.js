@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 var filewalker = require('filewalker');
-var browserify = require('browserify')();
+var browserify = require('browserify')({'standalone': 'SNC_DBScan'});
 var rimraf = require('rimraf')
 var UglifyJS = require("uglify-js");
 var path = require('path');
@@ -14,7 +14,7 @@ var compiledFiles = [];
 var sourceDirectory = './server';
 var distDirectory = './dist';
 var distFile = 'deploy.js';
-var mainFile = 'main.js';
+var mainFile = '.' + process.env.npm_package_main;
 
 filewalker(sourceDirectory)
     .on('file', function (filePath, s) {
@@ -24,33 +24,44 @@ filewalker(sourceDirectory)
     })
     .on('done', function () {
         servicenowify.compileAll(typescriptFiles, function (err) {
-            servicenowify.browserifyAll(sourceDirectory + '/' + mainFile, function (err, code) {
-                if (!err) {
-                    servicenowify.fixBlockScoping(code, function (err, fixedCode) {
-                        servicenowify.uglifyAll(fixedCode, function (err, uglifiedCode) {
-                            mkdirp(distDirectory + '/', function (err) {
-                                if (err)
-                                    console.error(err)
-                                else {
-                                    fs.writeFileSync(distDirectory + '/' + distFile, uglifiedCode, 'UTF8')
-
-                                    for (var key in compiledFiles) {
-                                        var filesToClean = compiledFiles.length
-                                        servicenowify.clean(sourceDirectory + '/' + compiledFiles[key].substring(0, compiledFiles[key].length - 2) + 'js', function (err) {
-                                            filesToClean--
-                                            if (!filesToClean) {
-                                                console.log('Build complete!')
+            if (err) {
+                console.log('Unable to compile source files: ' + err)
+            } else {
+                servicenowify.browserifyAll(mainFile, function (err, code) {
+                    if (err) {
+                        console.log('Unable to browserify source directory: ' + err)
+                    } else {
+                        servicenowify.fixBlockScoping(code, function (err, fixedCode) {
+                            if (err) {
+                                console.log('Unable to fix block scoping: ' + err)
+                            } else {
+                                servicenowify.uglifyAll(fixedCode, function (err, uglifiedCode) {
+                                    if (err) {
+                                        console.error('Unable to Uglify Source: ' + err)
+                                    } else {
+                                        mkdirp(distDirectory + '/', function (err) {
+                                            if (err) {
+                                                console.error(err)
+                                            } else {
+                                                fs.writeFileSync(distDirectory + '/' + distFile, uglifiedCode, 'UTF8')
+                                                for (var key in compiledFiles) {
+                                                    var filesToClean = compiledFiles.length
+                                                    servicenowify.clean(sourceDirectory + '/' + compiledFiles[key].substring(0, compiledFiles[key].length - 2) + 'js', function (err) {
+                                                        filesToClean--
+                                                        if (!filesToClean) {
+                                                            console.log('Build complete!')
+                                                        }
+                                                    })
+                                                }
                                             }
                                         })
                                     }
-                                }
-                            })
+                                })
+                            }
                         })
-                    })
-                } else {
-                    console.log('Unable to browserify source directory')
-                }
-            })
+                    }
+                })
+            }
         })
     })
     .walk()
@@ -103,8 +114,9 @@ servicenowify = {
      Fix Block Scoping - ServiceNow has a poor implementation of JavaScript, causing a single error in the Uglified code. We have to fix this by scoping a variable.
      */
     fixBlockScoping: function (code, callback) {
+        var splicedCode = code.toString().replace('return (function e(t,n,r)', 'return (e = function (t,n,r)');
         var fixedCode = '(e = function' + code.toString().substring(11);
-        callback(null, fixedCode);
+        callback(null, splicedCode);
     },
     /*
      Generic cleaning function, uses rimraf to take care of things

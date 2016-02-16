@@ -37,6 +37,9 @@ filewalker(sourceDirectory)
         }
     })
     .on('done', function () {
+
+
+
         servicenowify.compileAll(typescriptFiles, function (err) {
             if (err) {
                 console.log('Unable to compile source files: ' + err)

@@ -1,6 +1,6 @@
 {
   "name": "servicenowify",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "A tool for compiling TypeScript projects to ServiceNow Script Includes",
   "main": "main.js",
   "scripts": {

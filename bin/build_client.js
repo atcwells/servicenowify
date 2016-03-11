@@ -1,0 +1,64 @@
+#!/usr/bin/env node
+var pkg = require('../../../package.json');
+servicenowify = require('../lib/jobs');
+
+if (!pkg.servicenowify) {
+    console.log('ServiceNowify options not present, all defaults will be in place');
+    var sourceDirectory = './src';
+    var distDirectory = './dist';
+    var distFile = 'deploy.js';
+    var apiName = pkg.name;
+} else {
+    var sourceDirectory = '.' + pkg.servicenowify.sourcedir
+    var distDirectory = '.' + pkg.servicenowify.distdir
+    var distFile = pkg.servicenowify.distfile
+    var apiName = pkg.servicenowify.name
+}
+
+var filewalker = require('filewalker');
+var browserify = require('browserify')({'standalone': apiName});
+var rimraf = require('rimraf');
+var UglifyJS = require("uglify-js");
+var path = require('path');
+var mkdirp = require('mkdirp');
+var exec = require('child_process').exec;
+var fs = require('fs');
+
+var typescriptFiles = [];
+var compiledFiles = [];
+
+console.log('Taking source files from: ' + sourceDirectory);
+console.log('Targeting dist file at: ' + distDirectory + '/' + distFile);
+var mainFile = '.' + pkg.main;
+
+filewalker(sourceDirectory)
+    .on('file', function (filePath, s) {
+        if (path.extname(filePath) === '.ts') {
+            typescriptFiles.push(filePath)
+        }
+    })
+    .on('done', function () {
+
+        servicenowify.browserifyAll(mainFile, function (err, code) {
+            if (err) {
+                console.log('Unable to browserify source directory: ' + err)
+            } else {
+                servicenowify.uglifyAll(fixedCode, function (err, uglifiedCode) {
+                    if (err) {
+                        console.error('Unable to Uglify Source: ' + err)
+                    } else {
+                        mkdirp(distDirectory + '/', function (err) {
+                            if (err) {
+                                console.error('Unable to Create dist file: ' + err)
+                            } else {
+                                fs.writeFileSync(distDirectory + '/' + distFile, uglifiedCode, 'UTF8')
+                            }
+                        })
+                    }
+                })
+            }
+        })
+    })
+    .walk()
+
+// Build

@@ -1,6 +1,6 @@
 declare class GlideRecord {
 
-    save(filename: string): void;
+    save(filename:string):void;
 
     constructor(table:string);
 
@@ -27,4 +27,6 @@ declare class GlideRecord {
     next();
 
     query();
+
+    isValidField(field:string):boolean;
 }

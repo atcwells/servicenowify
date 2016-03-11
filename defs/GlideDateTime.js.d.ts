@@ -1,3 +1,5 @@
 declare class GlideDateTime {
-    constructor();
+    constructor(time?:String);
+
+    getNumericValue();
 }

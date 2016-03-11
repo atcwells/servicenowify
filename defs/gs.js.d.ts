@@ -1,5 +1,14 @@
-declare class GlideDateTime {
-    constructor();
+declare var gs:{
 
-    getUserID():string;
+    info(msg):void
+
+    error(msg):void
+
+    warn(msg):void
+
+    print(msg):void
+
+    log(msg):void
+
+    getUserID():string
 }

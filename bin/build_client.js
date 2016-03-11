@@ -19,9 +19,9 @@ servicenowify = require('../lib/jobs')(apiName);
 var filewalker = require('filewalker');
 var mkdirp = require('mkdirp');
 var fs = require('fs');
+var path = require('path');
 
 var typescriptFiles = [];
-var compiledFiles = [];
 
 console.log('Taking source files from: ' + sourceDirectory);
 console.log('Targeting dist file at: ' + distDirectory + '/' + distFile);

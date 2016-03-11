@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 var pkg = require('../../../package.json');
-servicenowify = require('../lib/jobs');
 
 if (!pkg.servicenowify) {
     console.log('ServiceNowify options not present, all defaults will be in place');
@@ -15,13 +14,11 @@ if (!pkg.servicenowify) {
     var apiName = pkg.servicenowify.name
 }
 
+servicenowify = require('../lib/jobs')(apiName);
+
 var filewalker = require('filewalker');
-var browserify = require('browserify')({'standalone': apiName});
-var rimraf = require('rimraf');
-var UglifyJS = require("uglify-js");
 var path = require('path');
 var mkdirp = require('mkdirp');
-var exec = require('child_process').exec;
 var fs = require('fs');
 
 var typescriptFiles = [];

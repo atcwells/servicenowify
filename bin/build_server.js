@@ -22,7 +22,6 @@ var mkdirp = require('mkdirp');
 var fs = require('fs');
 
 var typescriptFiles = [];
-var compiledFiles = [];
 
 console.log('Taking source files from: ' + sourceDirectory);
 console.log('Targeting dist file at: ' + distDirectory + '/' + distFile);
@@ -36,7 +35,7 @@ filewalker(sourceDirectory)
     })
     .on('done', function () {
 
-        servicenowify.compileAll(sourceDirectory, typescriptFiles, function (err) {
+        servicenowify.compileAll(sourceDirectory, typescriptFiles, function (err, compiledFiles) {
             if (err) {
                 console.log('Unable to compile source files: ' + err)
             } else {

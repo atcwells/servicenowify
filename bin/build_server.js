@@ -14,7 +14,7 @@ if (!pkg.servicenowify) {
     var apiName = pkg.servicenowify.name
 }
 
-servicenowify = require('../lib/jobs')(apiName, sourceDirectory);
+servicenowify = require('../lib/jobs')(apiName);
 
 var filewalker = require('filewalker');
 var path = require('path');
@@ -36,7 +36,7 @@ filewalker(sourceDirectory)
     })
     .on('done', function () {
 
-        servicenowify.compileAll(typescriptFiles, function (err) {
+        servicenowify.compileAll(sourceDirectory, typescriptFiles, function (err) {
             if (err) {
                 console.log('Unable to compile source files: ' + err)
             } else {

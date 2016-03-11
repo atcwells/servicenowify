@@ -22,6 +22,7 @@
   "homepage": "https://github.com/atcwells/servicenowify/#readme",
   "dependencies": {
     "browserify": "^13.0.0",
+    "browserify-global-shim": "^1.0.3",
     "filewalker": "^0.1.2",
     "mkdirp": "^0.5.1",
     "rimraf": "^2.5.1",

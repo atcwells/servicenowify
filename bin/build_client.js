@@ -14,7 +14,7 @@ if (!pkg.servicenowify) {
     var apiName = pkg.servicenowify.name
 }
 
-servicenowify = require('../lib/jobs')(apiName);
+servicenowify = require('../lib/jobs')(apiName, sourceDirectory);
 
 var filewalker = require('filewalker');
 var mkdirp = require('mkdirp');

@@ -39,19 +39,19 @@ filewalker(sourceDirectory)
             if (err) {
                 console.log('Unable to browserify source directory: ' + err)
             } else {
-                //servicenowify.uglifyAll(code.toString(), function (err, uglifiedCode) {
-                //    if (err) {
-                //        console.error('Unable to Uglify Source: ' + err)
-                //    } else {
-                mkdirp(distDirectory + '/', function (err) {
+                servicenowify.uglifyAll(code.toString(), function (err, uglifiedCode) {
                     if (err) {
-                        console.error('Unable to Create dist file: ' + err)
+                        console.error('Unable to Uglify Source: ' + err)
                     } else {
-                        fs.writeFileSync(distDirectory + '/' + distFile, code.toString(), 'UTF8')
+                        mkdirp(distDirectory + '/', function (err) {
+                            if (err) {
+                                console.error('Unable to Create dist file: ' + err)
+                            } else {
+                                fs.writeFileSync(distDirectory + '/' + distFile, uglifiedCode, 'UTF8')
+                            }
+                        })
                     }
                 })
-                //    }
-                //})
             }
         })
     })

@@ -25,8 +25,10 @@
     "browserify-global-shim": "^1.0.3",
     "filewalker": "^0.1.2",
     "mkdirp": "^0.5.1",
+    "ng-annotate": "^1.2.1",
     "rimraf": "^2.5.1",
-    "uglify": "^0.1.5"
+    "uglify": "^0.1.5",
+    "watchify": "^3.7.0"
   },
   "bin": {
     "build_servicenow_server": "bin/build_server.js",
